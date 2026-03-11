@@ -52,8 +52,6 @@ Name:         `linuxmint-22.3-cinnamon-64bit.iso`
 
 Checksum: `a081ab202cfda17f6924128dbd2de8b63518ac0531bcfe3f1a1b88097c459bd4`
 
-
-
 Now we mark a disk as failed and remove it
 
 ```bash
@@ -99,6 +97,8 @@ After which sha256 checksum is
 a081ab202cfda17f6924128dbd2de8b63518ac0531bcfe3f1a1b88097c459bd4
 ```
 
+## 2. Check robustness with data corruption
+
 Now we add the disk back, let it recover and apply a disk massive write damage on one disk.
 
 ```bash
@@ -117,4 +117,4 @@ After recovery, the checksum is
 53520dc09bbfc2f7c7c8f2a550941b0255a12b4f7831929c46847c07cf68aea2
 ```
 
-So, RAID1 cannot survive recovery from massive disk write.
+So, RAID1 cannot survive recovery from massive disk write corruption.
