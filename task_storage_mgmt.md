@@ -8,18 +8,18 @@ The used vm instance has following block tree
 
 ```bash
 NAME                    MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
-sr0                      11:0    1  9.5G  0 rom  
-nvme0n1                 259:0    0   10G  0 disk 
-├─nvme0n1p1             259:1    0   94M  0 part 
-└─nvme0n1p2             259:2    0   48M  0 part 
-nvme0n2                 259:3    0   20G  0 disk 
-├─nvme0n2p1             259:6    0    1M  0 part 
+sr0                      11:0    1  9.5G  0 rom
+nvme0n1                 259:0    0   10G  0 disk
+├─nvme0n1p1             259:1    0   94M  0 part
+└─nvme0n1p2             259:2    0   48M  0 part
+nvme0n2                 259:3    0   20G  0 disk
+├─nvme0n2p1             259:6    0    1M  0 part
 ├─nvme0n2p2             259:7    0    1G  0 part /boot
-└─nvme0n2p3             259:8    0   19G  0 part 
+└─nvme0n2p3             259:8    0   19G  0 part
   ├─ol_tabiulhasan-root 252:0    0   17G  0 lvm  /
   └─ol_tabiulhasan-swap 252:1    0    2G  0 lvm  [SWAP]
-nvme0n4                 259:4    0   10G  0 disk 
-nvme0n3                 259:5    0   10G  0 disk 
+nvme0n4                 259:4    0   10G  0 disk
+nvme0n3                 259:5    0   10G  0 disk
 ```
 
 The disk which is used by OS is nvme0n2 was named nvme0n1 before reboot. The following disk nvme0n1, nvme0n4, nvme0n3 are later added to show case storage management.
@@ -78,20 +78,20 @@ The device names again has changed after reboot. Target device for this task is 
 
 ```bash
 NAME                    MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
-sr0                      11:0    1  9.5G  0 rom  
-nvme0n1                 259:0    0   10G  0 disk 
+sr0                      11:0    1  9.5G  0 rom
+nvme0n1                 259:0    0   10G  0 disk
 └─nvme0n1p1             259:1    0   10G  0 part /projectdata
-nvme0n2                 259:2    0   10G  0 disk 
-└─nvme0n2p1             259:6    0   10G  0 part 
+nvme0n2                 259:2    0   10G  0 disk
+└─nvme0n2p1             259:6    0   10G  0 part
   ├─vg_training-lv_data 252:2    0    6G  0 lvm  /data
   └─vg_training-lv_logs 252:3    0    4G  0 lvm  /logs
-nvme0n4                 259:3    0   20G  0 disk 
-├─nvme0n4p1             259:5    0    1M  0 part 
+nvme0n4                 259:3    0   20G  0 disk
+├─nvme0n4p1             259:5    0    1M  0 part
 ├─nvme0n4p2             259:7    0    1G  0 part /boot
-└─nvme0n4p3             259:8    0   19G  0 part 
+└─nvme0n4p3             259:8    0   19G  0 part
   ├─ol_tabiulhasan-root 252:0    0   17G  0 lvm  /
   └─ol_tabiulhasan-swap 252:1    0    2G  0 lvm  [SWAP]
-nvme0n3                 259:4    0   10G  0 disk 
+nvme0n3                 259:4    0   10G  0 disk
 ```
 
 After creating partition and preparing it for lvm
@@ -126,8 +126,8 @@ Running `vgs` yields the following free space result
 
 ```bash
   VG             #PV #LV #SN Attr   VSize   VFree
-  ol_tabiulhasan   1   2   0 wz--n- <19.00g    0 
-  vg_training      1   2   0 wz--n- <10.00g    0 
+  ol_tabiulhasan   1   2   0 wz--n- <19.00g    0
+  vg_training      1   2   0 wz--n- <10.00g    0
 ```
 
 An extra command is ran to make blkid cache reload
@@ -213,7 +213,7 @@ lvcreate -l 100%free vg_training -n lv_backup
 For the rest
 
 ```bash
-mkfs.xfs /dev/mapper/vg_training-lv_backup 
+mkfs.xfs /dev/mapper/vg_training-lv_backup
 ```
 
 Updated fstab
@@ -258,7 +258,7 @@ Verification of returned space uing `vgs`
 
 ```bash
   VG             #PV #LV #SN Attr   VSize   VFree
-  ol_tabiulhasan   1   2   0 wz--n- <19.00g    0 
+  ol_tabiulhasan   1   2   0 wz--n- <19.00g    0
   vg_training      3   2   0 wz--n- <29.99g 8.99g
 ```
 

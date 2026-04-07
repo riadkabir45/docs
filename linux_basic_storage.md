@@ -14,7 +14,7 @@ MBR initially supports 4 partitions. Using extended partition and logical partit
 
 - Up to 2 TB disk support
 
-## GPT -  GUID Partition Table
+## GPT - GUID Partition Table
 
 GPT is the replacement of MBR, extending all of its limitations. It uses GUID to create partition identity. It also brings better recovery support by keeping a primary GPT and backup GPT at begin and end of disk respectively. Features are:
 
@@ -46,7 +46,7 @@ Common parted subcommands
 # All these command can be run by just calling subcommand name
 # and passing each value seperately
 
-# Create parition table 
+# Create parition table
 mklabel PARTITION_TYPE
 # Or with
 mktable PARITTION_TYPE
@@ -62,8 +62,6 @@ print
 rm PARTITION_ID
 ```
 
-
-
 After any kind of partition change `udevadm settle` might be needed to run for kernel to detect changes
 
 ---
@@ -71,8 +69,6 @@ After any kind of partition change `udevadm settle` might be needed to run for k
 # Managing Swap
 
 Swap are disk space used as backup memory to keep things that are not needed currently or needs to survive power off.
-
-
 
 ```bash
 # Prepare a disk or block for swap
@@ -84,7 +80,5 @@ swapon /dev/BLOCK_PATH
 # Disable a swap
 swapoff /dev/BLOCK_PATH
 ```
-
-
 
 > Note: Swap space takes mount parameter of pri which defines which swap will be prioritized for using till filled up. The default value is -2
