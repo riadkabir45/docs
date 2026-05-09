@@ -9,7 +9,7 @@ This task is to showcase the skills to setup a PXE network where devices can boo
 - The operating system files will be soft linked from the original source
 
 ## 1. Setup DNS and TFTP
-We will use dnsmasq since it has both dns server and and tftp server. After installing dnsmasq, we will configure it to serve as the primary dhcp on interface `ens224`
+We will use dnsmasq since it has both dns server and and tftp server. After installing dnsmasq, we will configure it to serve as the primary dhcp on interface `ens224`. Also make sure that our device IP address is static.
 
 **File:** `/etc/dnsmasq.conf`
 ```ini
@@ -51,5 +51,101 @@ LABEL BASE_LABEL
 EOF
 ```
 
+> **Note:** We habe to make sure our ip address is static so the IP addresses in the boot menu and ks file align with out device ip on every boot.
+
 ## 2. Setup ISO and httpd
-Now we setup ISO files and the httpd for the isos to be served to the pxe bootloader
+Now we setup ISO files and the httpd for the isos to be served to the pxe bootloader. First we place the iso to a specific location such as `/opt/iso`. And mounth them to `/var/www/html/pxe/ol` `/var/www/html/pxe/rhel` respectively. We can mount them via `fstab`.
+
+**File:** `/etc/fstab`
+```bash
+/opt/iso/ol8u10_x86_64.iso                /var/www/html/pxe/ol      iso9660 loop,ro         0 0
+/opt/iso/rhel-9.7-x86_64-dvd.iso          /var/www/html/pxe/rhel    iso9660 loop,ro         0 0
+```
+
+Now we run `mount -a` and if no error is present, they should be mounted. Then we create a symlink to `./isoliux` folder of both iso in `/opt/tftpboot/boot` folder.
+```bash
+ln -sf /var/www/html/pxe/ol/isolinux/ /opt/tftpboot/boot/ol
+ln -sf /var/www/html/pxe/rhel/isolinux/ /opt/tftpboot/boot/rhel
+```
+
+## 3. Generate KS File
+Now we prep out ks files. We will make 3 ks files for each iso. Those are minimal, server and gui. Red hat provides a gui tool to configure ks files. But for this experiment we will modify an existing ks file from manual installation to make our ks file
+
+**Original KS File:** This is for minimal server installation
+```conf
+#version=OL8
+# Use graphical install
+graphical
+reboot
+
+repo --name="AppStream" --baseurl=http://192.168.80.10/pxe/ol/AppStream
+
+%packages
+@^minimal-environment
+kexec-tools
+
+%end
+
+# Keyboard layouts
+keyboard --xlayouts='us'
+# System language
+lang en_US.UTF-8
+
+# Network information
+network --bootproto=dhcp --device=link --activate --onboot=on --hostname=ol8-gui
+
+# Use network installation
+url --url="http://192.168.80.10/pxe/ol"
+
+# Run the Setup Agent on first boot
+firstboot --enable
+
+zerombr
+clearpart --all --initlabel
+autopart
+
+# System timezone
+timezone Asia/Dhaka --isUtc
+
+# Root password
+rootpw --lock
+user --name=riad --password=$6$anOMAV5FE00AV.3r$C.B1Q6wOT9BBxszbuhS10zWxuqxKiUejCN51novMIbMr5ZB2xM3gpnkjTjRE.slnMQ8CwlP1s4q8mbZo98m8V0 --iscrypted --gecos="riad"
+
+%addon com_redhat_kdump --enable --reserve-mb='auto'
+
+%end
+```
+
+Here we will changet the user config to a generic default password that is not encrypted
+```conf
+user --name=riad --password=password --iscrypted --gecos="riad"
+```
+
+And to primpt user to change password on first login. We will add this to end
+```conf
+%post
+chage -d 0 riad
+%end
+```
+
+And for server and GUI ks file, we will change package section to this respectively
+```conf
+%packages
+@^server-product-environment
+kexec-tools
+%end
+```
+
+```conf
+%packages
+@^graphical-server-environment
+kexec-tools
+%end
+```
+
+## 4. Enable All Services
+Now we enable dnsmasq and httpd so that our device works as a dns server and serves a os tree.
+```bash
+sudo systemctl enable dnsmasq.service --now
+sudo systemctl enable httpd.service --now
+```bash

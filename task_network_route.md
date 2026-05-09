@@ -1,127 +1,82 @@
-# Task - Routing Implementation
+# Task - SELinux Context Implementation
 
-The goal of this task is to implement a secure controlled network through making one node a router and other nodes connect and communicate via the router node. The tasks are
+The goal of this task is to analyze how SELinux Mandatory Access Control (MAC) handles different directory structures and file operations. We will demonstrate three specific behaviors: why some custom paths work by default, how moving files breaks access, and how unknown root paths default to a restrictive state.
 
-- Configure the physical network between three nodes
-  - The router will have 2 interface for each nodes
-  - Each node will be connected directly to the routing node
-- Configure the router to have a static ip on each interface and enable packet forwarding
-- Configure each node to use the router as default gateway to communicate with each other
-  
-## 1. Setup the physical network
+- Observe how `/opt` paths can inherit allowed generic types
+- Trigger an AVC denial via Context Persistence (moving from `/home`)
+- Trigger an AVC denial via Fallback Labeling (creating in `/html`)
 
-Vmware allows creation of internal network by implementing line segments. On new/modifying network adapter, simply select `Lan Segments` and select a segment which represents a wired Ethernet network. New segments can be added from `LAN Segments...` button below.
+## 1. Case 1: Custom Path with Generic Allowance (/opt)
 
-- Create two interfaces in routing node. Each node will select different LAN segments. `Internal_A` and `Internal_B`
-- On each node, modify the existing interface from NAT to LAN segments. One should be connected to `Internal_A` and other one to `Internal_B`
+In this scenario, we create a web root in `/opt`. Even with SELinux in `Enforcing` mode, this often works because of the default "Targeted" policy rules.
 
-## 2. Configure routing node
-
-To make a linux os act as router, first we need to acquire an IP on each connection. We are to do that manually. Setting each to `192.168.10.1` and `192.168.20.1`
+* Create `/opt/www/html` and configure Apache.
+* Check the context assigned to the new path.
 
 ```bash
-# List interfaces
-ip -br a 
-
-# Setup manual IP on first interface
-nmcli con mod ens160 ipv4.addresses 192.168.10.1/24 ipv4.method manual
-
-# Setup manual IP on second interface
-nmcli con mod ens224 ipv4.addresses 192.168.20.1/24 ipv4.method manual
+mkdir -p /opt/www/html
+echo "Welcome to httpd by riad" > /opt/www/html/index.html
+ls -Z /opt/www/html/index.html
 ```
 
-Verify the network changes by running `ip a` and checking IPv4 addresses
+**Result:** `curl localhost` works. 
+**Reason:** Files created in `/opt` are often labeled as `usr_t` or `etc_t`. The SELinux policy for `httpd_t` (Apache) usually contains an allowance to read these generic system types, meaning no extra configuration was needed.
 
-Next we need to enable IP_FORWARD in kernel, otherwise Linux kernel will drop all packages that is not sent for it self.
+---
+
+## 2. Case 2: Context Persistence and the Move Trap (/var/www/html)
+
+Next, we demonstrate how moving a file preserves its original security context, leading to a denial even in a "valid" directory.
+
+* Create a file in the user's **home directory**.
+* Move the file into the standard Apache directory `/var/www/html`.
 
 ```bash
-echo 1 | sudo tee /proc/sys/net/ipv4/ip_forward
+# Create file in home (gets user_home_t context)
+echo "hello by riad" > ~/index.html
+
+# MOVE the file (Preserves context)
+mv ~/index.html /var/www/html/index.html
+
+# Verify the mismatch
+ls -Z /var/www/html/index.html
 ```
 
-To make it permanent, add a new file in sysctl `/etc/sysctl.d/40-routing.conf`
+**Result:** `curl localhost` returns **403 Forbidden**. 
+**Reason:** The file retained the `user_home_t` label. SELinux sees a web server attempting to read private user data and blocks the process, regardless of standard Linux permissions.
+
+---
+
+## 3. Case 3: Fallback Labeling on New Root Paths (/html)
+
+Finally, we observe what happens when we create a directory that the SELinux policy database does not recognize at all.
+
+* Create a new directory at the root level: `/html`.
+* Create an index file and point Apache to it.
 
 ```bash
-net.ipv4.ip_forward = 1
+mkdir /html
+touch /html/index.html
+ls -Z /html/index.html
 ```
 
-## 3. Modify each node to use the routing node
+**Result:** `curl localhost` returns the original apache2 page. 
+**Reason:** Because even `/html` is not a standard path defined in the SELinux policy, the kernel assigns it the `default_t` label. The `httpd_t` domain has no permission to interact with `default_t`, causing the system to "fall back" to the default page.
 
-First we need to figure out which interface in routing table is connected to which node. SInce nodes do not have IP, we cannot ping. Instead we use `arping`
+---
+
+## 4. Troubleshooting and Audit Logs
+
+We verify these denials by inspecting the Access Vector Cache (AVC) logs.
 
 ```bash
-arping 192.168.10.1
-arping 192.168.20.1
+# Search for recent denials
+ausearch -m AVC
 ```
 
-One or both of these will return a mac address. You can match it with result of `ip a` in routing node to understand which interface is connected to which node.
-
-Since nodes are alpine-linux, we need to configure using `networking` services which has configuration file at `/etc/networking/interfaces` and edit the line containing the interface to following
-
-Default configuration
-
-```bash
-auto lo
-iface lo inet loopback
-
-auto eth0 inet dhcp
 ```
-
-Modified static configuration
-
-```bash
-auto lo
-iface lo inet loopback
-
-auto eth0 inet static
-    address 192.168.10.15 # Randomly chosen ip from subnet
-    netmask 255.255.255.0
-    gateway 192.168.10.1
+time->Wed May  6 10:28:50 2026
+type=PROCTITLE msg=audit(1778041730.798:340): proctitle=2F7573722F7362696E2F6874747064002D44464F524547524F554E44
+type=SYSCALL msg=audit(1778041730.798:340): arch=c000003e syscall=6 success=no exit=-13 a0=7fe5100436f0 a1=7fe5166d57b0 a2=7fe5166d57b0 a3=1 items=0 ppid=3956 pid=3959 auid=4294967295 uid=48 gid=48 euid=48 suid=48 fsuid=48 egid=48 sgid=48 fsgid=48 tty=(none) ses=4294967295 comm="httpd" exe="/usr/sbin/httpd" subj=system_u:system_r:httpd_t:s0 key=(null)
+type=AVC msg=audit(1778041730.798:340): avc:  denied  { getattr } for  pid=3959 comm="httpd" path="/html/index.html" dev="dm-0" ino=51219004 scontext=system_u:system_r:httpd_t:s0 tcontext=unconfined_u:object_r:default_t:s0 tclass=file permissive=0
 ```
-
-And restart the service with
-
-```bash
-rc-service networking restart
-```
-
-Now we should be able to ping to the router IP or IP of the 2nd node. If not, check the following
-
-- Make sure you are connecting to proper gateway and using proper subnet
-
-- Make sure the configuration are complete. That there's proper IP with proper sub-net number for all nodes including the router and proper gateway for the nodes.
-
-- Check ping with firewall temporarily disabled.
-
-## 4. Configure the firewall
-
-Now we need to configure the firewall so that each device can talk to other but cannot take advantage of router access.
-
-For simpler configuration, we include the interfaces to a zone, here internal zone and allow communication of each other
-
-```bash
-# Add each interface to the zone
-firewalld-cmd --permanent --zone=internal --add-interface=ens160
-firewalld-cmd --permanent --zone=internal --add-interface=ens224
-
-# Allow communication between each other
-firewalld-cmd --permanent --zone=internal --add-forward
-
-# Reload the firewall service
-firewalld-cmd --reload
-```
-
-We can check out configuration by this command
-
-```bash
-firewalld-cmd --list-all --zone=internal
-```
-
-You will notice there are services allowed in the zone such as `ssh` , `cockpit`. To deny any modification access to router, we need to remove these services from allowed list.
-
-To remove `ssh` for example
-
-```bash
-firewalld-cmd --permanent --zone=internal --remove-service=ssh
-```
-
-Now you should be able to ping each other and see the populated IP tables from the routing node

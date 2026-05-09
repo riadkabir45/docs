@@ -1,0 +1,471 @@
+{
+  "workspace": "Docs",
+  "generatedAt": "2026-04-19",
+  "purpose": "Standalone context summary for the documentation in this folder",
+  "summary": "This workspace captures hands-on Linux administration learning with practical emphasis on storage, networking, PXE boot, logging, SSH access, virtualization, automation, and documentation quality.",
+  "scope": {
+    "audience": "A Linux systems learner building repeatable operational knowledge for lab and server administration.",
+    "style": "Procedure-focused notes with commands, configuration snippets, verification steps, and implementation details.",
+    "coverage": "Foundational administration, infrastructure services, storage management, network configuration, scripting, and meta-documentation review."
+  },
+  "topicAreas": {
+    "systemAdministration": {
+      "themes": [
+        "hostname management and system identity",
+        "SSH key-based access and remote login hardening",
+        "firewall and SELinux operational awareness"
+      ],
+      "relatedFiles": [
+        "better_hostnamectl.md",
+        "ssh_key_setup.md",
+        "syslog-ng.md"
+      ]
+    },
+    "storageManagement": {
+      "themes": [
+        "partitioning with MBR and GPT",
+        "disk inspection with lsblk, parted, and related tools",
+        "filesystem creation, mounting, and persistent fstab entries",
+        "LVM, swap, and RAID workflows",
+        "storage expansion, integrity checks, and recovery testing"
+      ],
+      "relatedFiles": [
+        "linux_basic_storage.md",
+        "task_storage_mgmt.md",
+        "task_raid.md",
+        "pxe_setup.md"
+      ]
+    },
+    "networking": {
+      "themes": [
+        "static IP configuration and IP forwarding",
+        "route and gateway planning",
+        "port scanning and connectivity validation",
+        "internal lab network segmentation and firewall zones"
+      ],
+      "relatedFiles": [
+        "task_network_route.md",
+        "scanning_ports.md",
+        "ssh_key_setup.md"
+      ]
+    },
+    "infrastructureServices": {
+      "themes": [
+        "PXE boot and unattended OS installation",
+        "centralized logging with syslog-ng",
+        "VMware Workstation setup with Secure Boot signing"
+      ],
+      "relatedFiles": [
+        "pxe_setup.md",
+        "task_pxe_server.md",
+        "syslog-ng.md",
+        "vmware_setup.md"
+      ]
+    },
+    "automationAndScripting": {
+      "themes": [
+        "bash scripting for file handling and transfers",
+        "archive/feed automation with logging and error handling",
+        "verification-first workflow using command output"
+      ],
+      "relatedFiles": [
+        "task_ext_feed_script.md",
+        "task_pxe_server.md",
+        "task_storage_mgmt.md"
+      ]
+    },
+    "documentationQuality": {
+      "themes": [
+        "grammar and content review",
+        "structural analysis and template consistency",
+        "example structure and writing standards"
+      ],
+      "relatedFiles": [
+        "grammar_and_content.md",
+        "structural_analysis.md",
+        "sample_structure_demo.md"
+      ]
+    }
+  },
+  "recurringPatterns": [
+    "install, configure, enable, and start service workflow",
+    "partition, format, mount, and persist with /etc/fstab workflow",
+    "verify changes with command output after each major step",
+    "document commands, configuration snippets, and expected results together",
+    "prefer practical lab validation over purely theoretical explanations"
+  ],
+  "knowledgeSummary": {
+    "systemIdentity": "Hostname handling requires awareness of hostnamectl behavior plus direct /etc/hosts synchronization.",
+    "remoteAccess": "SSH keys are treated as the default remote access path, with secure key generation and distribution patterns.",
+    "storage": "The notes move from partitioning theory through RAID, LVM, XFS/ext4, swap, NFS, and mount persistence.",
+    "networking": "The network material covers isolated lab routing, static addressing, forwarding, firewall zones, and port checks.",
+    "deployment": "PXE documentation connects DHCP/TFTP/HTTP boot services with kickstart-driven operating system installation.",
+    "logging": "syslog-ng is treated as a centralized logging platform with network sources, filters, rewrites, and multiple destinations.",
+    "virtualization": "VMware setup focuses on kernel module signing and Secure Boot compatibility for Linux hosts.",
+    "automation": "The bash automation task emphasizes robust file processing, logging, email reporting, and cleanup.",
+    "documentationMeta": "Two files analyze structure and grammar, showing that improving the docs is part of the learning process."
+  },
+  "fileIndex": [
+    {
+      "file": "better_hostnamectl.md",
+      "category": "systemAdministration",
+      "mainTopic": "hostname management and system identity",
+      "summary": "Explains how hostname state is split across hostnamectl, /etc/hostname, and /etc/hosts, and why a reliable hostname change process may need both service-level and file-level updates.",
+      "keyConcepts": [
+        "distribution-specific hostnamectl behavior",
+        "manual synchronization of hostname-related files",
+        "cross-distribution hostname update robustness"
+      ],
+      "keyTools": [
+        "hostnamectl",
+        "sed"
+      ],
+      "relatedFiles": [
+        "ssh_key_setup.md",
+        "task_network_route.md",
+        "syslog-ng.md"
+      ]
+    },
+    {
+      "file": "grammar_and_content.md",
+      "category": "documentationQuality",
+      "mainTopic": "documentation quality control and error analysis",
+      "summary": "Captures grammar, spelling, duplication, and technical accuracy issues found across the documentation set, making it a meta-review reference rather than a technical procedure guide.",
+      "keyConcepts": [
+        "grammar issues such as its/it's confusion and missing articles",
+        "technical corrections and validation notes",
+        "duplicate or inconsistent documentation patterns"
+      ],
+      "keyNotes": [
+        "RAID1 recovery limitations were flagged for clarification",
+        "a PXE path typo was identified in the broader docs",
+        "some sections duplicate code examples that should be deduplicated"
+      ],
+      "relatedFiles": [
+        "structural_analysis.md",
+        "sample_structure_demo.md"
+      ]
+    },
+    {
+      "file": "linux_basic_storage.md",
+      "category": "storageManagement",
+      "mainTopic": "disk partitioning and swap space management",
+      "summary": "Covers the storage fundamentals needed before advanced work: partition table types, parted usage, swap lifecycle, and the idea of waiting for the kernel to recognize changes.",
+      "keyConcepts": [
+        "MBR versus GPT tradeoffs",
+        "swap creation and activation",
+        "device state synchronization after partition changes"
+      ],
+      "keyTools": [
+        "parted",
+        "mkswap",
+        "swapon",
+        "swapoff",
+        "udevadm settle"
+      ],
+      "relatedFiles": [
+        "task_storage_mgmt.md",
+        "task_raid.md",
+        "pxe_setup.md"
+      ]
+    },
+    {
+      "file": "pxe_setup.md",
+      "category": "infrastructureServices",
+      "mainTopic": "PXE boot infrastructure for OS deployment",
+      "summary": "Describes the service stack behind PXE booting, including DHCP proxy behavior, TFTP boot assets, HTTP installation media, and kickstart automation for unattended installs.",
+      "keyConcepts": [
+        "proxy DHCP boot flow",
+        "bootloader and ISO content delivery",
+        "kickstart-based installation automation"
+      ],
+      "keyTools": [
+        "dnsmasq",
+        "syslinux",
+        "loop mounts",
+        "kickstart"
+      ],
+      "relatedFiles": [
+        "task_pxe_server.md",
+        "linux_basic_storage.md",
+        "task_network_route.md"
+      ]
+    },
+    {
+      "file": "sample_structure_demo.md",
+      "category": "documentationQuality",
+      "mainTopic": "documentation structure template and best practices",
+      "summary": "Acts as a reference for how a procedure document should be organized, including expected sections, command examples, verification notes, and metadata.",
+      "keyConcepts": [
+        "standardized section ordering",
+        "command tables and output snippets",
+        "metadata and readability conventions"
+      ],
+      "relatedFiles": [
+        "structural_analysis.md",
+        "grammar_and_content.md"
+      ]
+    },
+    {
+      "file": "scanning_ports.md",
+      "category": "networking",
+      "mainTopic": "port scanning and connectivity checks",
+      "summary": "Provides low-noise ways to test open ports and connectivity, useful when validating exposed services or checking access from a network segment.",
+      "keyConcepts": [
+        "netcat-based port probes",
+        "bash /dev/tcp checks",
+        "legacy telnet usage for simple connectivity testing"
+      ],
+      "keyTools": [
+        "nc",
+        "bash",
+        "telnet",
+        "timeout"
+      ],
+      "relatedFiles": [
+        "task_network_route.md",
+        "ssh_key_setup.md",
+        "syslog-ng.md"
+      ]
+    },
+    {
+      "file": "ssh_key_setup.md",
+      "category": "systemAdministration",
+      "mainTopic": "SSH key generation and deployment",
+      "summary": "Explains how to generate SSH key pairs, deploy public keys to remote systems, and rely on passwordless access for administration and automation.",
+      "keyConcepts": [
+        "public/private key authentication",
+        "key passphrase separation from login passwords",
+        "standard ~/.ssh layout and client key discovery"
+      ],
+      "keyTools": [
+        "ssh-keygen",
+        "ssh-copy-id"
+      ],
+      "relatedFiles": [
+        "task_network_route.md",
+        "task_ext_feed_script.md",
+        "vmware_setup.md"
+      ]
+    },
+    {
+      "file": "structural_analysis.md",
+      "category": "documentationQuality",
+      "mainTopic": "documentation consistency and organization review",
+      "summary": "Reviews how the docs are organized, where header hierarchy and naming drift, and how frontmatter, naming prefixes, and syntax highlighting could improve maintainability.",
+      "keyConcepts": [
+        "header hierarchy consistency",
+        "file naming conventions",
+        "draft versus finished document separation"
+      ],
+      "keyRecommendations": [
+        "use a unified prefix system for file names",
+        "move stubs into a drafts area",
+        "apply syntax-specific code fences where helpful"
+      ],
+      "relatedFiles": [
+        "sample_structure_demo.md",
+        "grammar_and_content.md"
+      ]
+    },
+    {
+      "file": "syslog-ng.md",
+      "category": "infrastructureServices",
+      "mainTopic": "centralized logging with syslog-ng",
+      "summary": "Describes syslog-ng as a flexible logging platform with sources, parsers, rewrites, filters, destinations, and routing rules for production-style log collection.",
+      "keyConcepts": [
+        "network and local log sources",
+        "JSON parsing and message rewriting",
+        "fan-out destinations and conditional log paths"
+      ],
+      "keyTools": [
+        "syslog-ng",
+        "firewalld",
+        "SELinux",
+        "EPEL"
+      ],
+      "relatedFiles": [
+        "task_network_route.md",
+        "vmware_setup.md",
+        "ssh_key_setup.md"
+      ]
+    },
+    {
+      "file": "task_ext_feed_script.md",
+      "category": "automationAndScripting",
+      "mainTopic": "archive and transfer automation",
+      "summary": "Documents a Bash automation flow that archives input data, transfers files between systems, tracks success and failure, and emits logs and notifications.",
+      "keyConcepts": [
+        "batch processing over multiple servers",
+        "file success and failure tracking",
+        "post-processing, cleanup, and notification logic"
+      ],
+      "keyTools": [
+        "bash",
+        "rsync",
+        "grep",
+        "mail",
+        "tac",
+        "sed"
+      ],
+      "relatedFiles": [
+        "ssh_key_setup.md",
+        "task_storage_mgmt.md",
+        "pxe_setup.md"
+      ]
+    },
+    {
+      "file": "task_network_route.md",
+      "category": "networking",
+      "mainTopic": "network routing and firewall segmentation",
+      "summary": "Shows how to build a routed lab network with static addressing, IP forwarding, and firewall configuration across multiple interfaces and Linux variants.",
+      "keyConcepts": [
+        "VMware LAN segment routing",
+        "kernel IP forwarding",
+        "persistent sysctl and firewall configuration"
+      ],
+      "keyTools": [
+        "nmcli",
+        "ip",
+        "arping",
+        "firewall-cmd"
+      ],
+      "relatedFiles": [
+        "scanning_ports.md",
+        "ssh_key_setup.md",
+        "vmware_setup.md"
+      ]
+    },
+    {
+      "file": "task_pxe_server.md",
+      "category": "infrastructureServices",
+      "mainTopic": "multi-OS PXE server implementation",
+      "summary": "Builds on the PXE theory with a concrete multi-OS deployment setup, including boot menu entries, ISO loop mounts, kickstart profiles, and service configuration.",
+      "keyConcepts": [
+        "multiple OS and profile combinations",
+        "persistent ISO mounts for installation media",
+        "boot menu and kickstart integration"
+      ],
+      "keyTools": [
+        "dnsmasq",
+        "pxelinux",
+        "fstab",
+        "chage"
+      ],
+      "relatedFiles": [
+        "pxe_setup.md",
+        "linux_basic_storage.md",
+        "task_network_route.md"
+      ]
+    },
+    {
+      "file": "task_raid.md",
+      "category": "storageManagement",
+      "mainTopic": "RAID1 creation and resilience testing",
+      "summary": "Documents a RAID1 workflow that includes array creation, drive failure simulation, recovery steps, and data integrity validation after disruptive testing.",
+      "keyConcepts": [
+        "mirror-based redundancy",
+        "failure and removal handling",
+        "integrity verification after repair"
+      ],
+      "keyTools": [
+        "mdadm",
+        "sha256sum",
+        "mkfs.ext4",
+        "/proc/mdstat"
+      ],
+      "relatedFiles": [
+        "linux_basic_storage.md",
+        "task_storage_mgmt.md"
+      ]
+    },
+    {
+      "file": "task_storage_mgmt.md",
+      "category": "storageManagement",
+      "mainTopic": "storage lifecycle management",
+      "summary": "Covers a complete storage workflow from disk identification through partitioning, LVM provisioning, filesystem growth, removal, and NFS sharing.",
+      "keyConcepts": [
+        "storage provisioning with XFS and UUID mounts",
+        "LVM extension and recovery when space runs out",
+        "NFS exports and persistent client mounts"
+      ],
+      "keyTools": [
+        "lsblk",
+        "parted",
+        "pvcreate",
+        "vgcreate",
+        "lvcreate",
+        "xfs_growfs",
+        "exportfs"
+      ],
+      "relatedFiles": [
+        "linux_basic_storage.md",
+        "task_raid.md",
+        "pxe_setup.md"
+      ]
+    },
+    {
+      "file": "TODO_task_server_access_routing.md",
+      "category": "incomplete",
+      "mainTopic": "placeholder for server access routing work",
+      "summary": "This file is currently an empty stub and appears to be a reserved slot for future documentation.",
+      "status": "unfinished"
+    },
+    {
+      "file": "vmware_setup.md",
+      "category": "infrastructureServices",
+      "mainTopic": "VMware Workstation setup with Secure Boot support",
+      "summary": "Explains how to install VMware Workstation on Ubuntu, sign kernel modules, enroll a Machine Owner Key, and validate that the VM networking stack works correctly.",
+      "keyConcepts": [
+        "kernel module compilation and signing",
+        "Secure Boot compatibility via MOK enrollment",
+        "host-side port forwarding for VM access"
+      ],
+      "keyTools": [
+        "build-essential",
+        "linux-headers",
+        "openssl",
+        "sign-file",
+        "mokutil",
+        "nginx"
+      ],
+      "relatedFiles": [
+        "task_network_route.md",
+        "ssh_key_setup.md",
+        "syslog-ng.md"
+      ]
+    }
+  ],
+  "crossFileDependencies": [
+    {
+      "from": "task_pxe_server.md",
+      "dependsOn": [
+        "pxe_setup.md",
+        "linux_basic_storage.md"
+      ],
+      "reason": "Implementation depends on PXE theory and ISO/mount handling."
+    },
+    {
+      "from": "task_storage_mgmt.md",
+      "dependsOn": [
+        "linux_basic_storage.md",
+        "task_raid.md"
+      ],
+      "reason": "Storage lifecycle work builds on partitioning basics and RAID concepts."
+    },
+    {
+      "from": "task_network_route.md",
+      "dependsOn": [
+        "ssh_key_setup.md",
+        "scanning_ports.md"
+      ],
+      "reason": "Routing and access work is easier to validate when SSH and port-checking are already understood."
+    }
+  ],
+  "gapsAndNotes": [
+    "TODO_task_server_access_routing.md appears to be an unfinished placeholder.",
+    "The docs emphasize practical verification and real command output over theory.",
+    "Several files are about improving the documentation itself, not only the technical tasks.",
+    "This JSON is intended to be self-contained, so per-file detail is intentionally duplicated rather than normalized."
+  ]
+}
